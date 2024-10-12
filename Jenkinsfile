@@ -21,10 +21,15 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    if (fileExists('package.json') && sh(script: 'npm run | grep test', returnStatus: true) == 0) {
-                        bat 'npm test'
+                    if (fileExists('package.json')) {
+                        def hasTestScript = bat(script: 'npm run | findstr test', returnStatus: true) == 0
+                        if (hasTestScript) {
+                            bat 'npm test'
+                        } else {
+                            echo 'No test script found in package.json, skipping tests.'
+                        }
                     } else {
-                        echo 'No test script found in package.json, skipping tests.'
+                        echo 'package.json not found, skipping tests.'
                     }
                 }
             }
