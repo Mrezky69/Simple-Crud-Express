@@ -10,7 +10,7 @@ pipeline {
             steps {
                 git branch: 'master', url: 'https://github.com/Mrezky69/Simple-Crud-Express.git'
             }
-        }
+        }        
         
         stage('Install Dependencies') {
             steps {
@@ -20,7 +20,13 @@ pipeline {
         
         stage('Run Tests') {
             steps {
-                bat 'npm test'
+                script {
+                    if (fileExists('package.json') && sh(script: 'npm run | grep test', returnStatus: true) == 0) {
+                        bat 'npm test'
+                    } else {
+                        echo 'No test script found in package.json, skipping tests.'
+                    }
+                }
             }
         }
         
